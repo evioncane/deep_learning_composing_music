@@ -4,15 +4,14 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 import tensorflow as tf
-
-# Download and import the MIT 6.S191 package
 import mitdeeplearning as mdl
 import numpy as np
 from tqdm import tqdm
+import composing.read_songs as r
 
 
-# Download the dataset
-songs = mdl.lab1.load_training_data()
+# Read the dataset
+songs = r.read_songs()
 
 # Join our list of song strings into a single string containing all songs
 songs_joined = "\n\n".join(songs)
@@ -59,14 +58,6 @@ def get_batch(vectorized_songs, seq_length, batch_size):
     return x_batch, y_batch
 
 
-x_batch, y_batch = get_batch(vectorized_songs, seq_length=5, batch_size=1)
-
-for i, (input_idx, target_idx) in enumerate(zip(np.squeeze(x_batch), np.squeeze(y_batch))):
-    print("Step {:3d}".format(i))
-    print("  input: {} ({:s})".format(input_idx, repr(idx2char[input_idx])))
-    print("  expected output: {} ({:s})".format(target_idx, repr(idx2char[target_idx])))
-
-
 def LSTM(rnn_units):
     return tf.keras.layers.LSTM(
         rnn_units,
@@ -105,14 +96,14 @@ def compute_loss(labels, logits):
 
 # Optimization parameters:
 num_training_iterations = 2000  # Increase this to train longer
-batch_size = 10  # Experiment between 1 and 64
+batch_size = 64  # Experiment between 1 and 64
 seq_length = 100  # Experiment between 50 and 500
-learning_rate = 5e-3  # Experiment between 1e-5 and 1e-1
+learning_rate = 1e-3  # Experiment between 1e-5 and 1e-1
 
 # Model parameters:
 vocab_size = len(vocab)
 embedding_dim = 256
-rnn_units = 1024  # Experiment between 1 and 2048
+rnn_units = 2000  # Experiment between 1 and 2048
 
 # Checkpoint location:
 checkpoint_dir = './training_checkpoints'
@@ -205,5 +196,6 @@ def generate_text(model, start_string, generation_length=1000):
 
 generated_text = generate_text(model, start_string="X", generation_length=1000)
 
-print('Done!')
-print(generated_text)
+file = open("../generated_songs/composed_song.abc", 'w+')
+file.write(generated_text)
+file.close()
