@@ -280,4 +280,20 @@ generated_text = generate_text(model, start_string="X", generation_length=1000) 
 
 print('Done!')
 print(generated_text)
+file = open("../generated_songs/composed_song.abc", 'w+')
+file.write(generated_text)
+file.close()
+
+### Play back generated songs ###
+
+generated_songs = mdl.lab1.extract_song_snippet(generated_text)
+
+for i, song in enumerate(generated_songs):
+  # Synthesize the waveform from a song
+  waveform = mdl.lab1.play_song(song)
+
+  # If its a valid song (correct syntax), lets play it!
+  if waveform:
+    print("Generated song", i)
+    ipythondisplay.display(waveform)
 
